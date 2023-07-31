@@ -1,4 +1,5 @@
 import requests
+import sys
 from bs4 import BeautifulSoup
 
 class Main:
@@ -10,11 +11,23 @@ class Main:
             }
 
     def get_html(self, url):
-        print(url)
-        for i in range(5):
+        for i in range(10):
             try:
+                print("request")
                 self.result = requests.get(url, headers=self.headers)
                 self.result = BeautifulSoup(self.result.text, "html.parser")
+                if self.result == None:
+                    continue
                 return self.result
             except requests.exceptions.RequestException:
                 continue
+        if i <= 9:
+            print("Request gagal, cek koneksi internet")
+            sys.exit(1)
+
+    def download(self, directory, name, url):
+        self.response = requests.get(url, stream=True, headers=self.headers)
+        with open(os.path.join(directory, name), "wb") as file:
+            for data in self.response.iter_content(chunk_size=512):
+                file.write(data)
+
