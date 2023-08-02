@@ -15,21 +15,16 @@ class Main():
 
     def get_release(self, html):
         self.releases = html.find(class_="result")
-        print(self.releases)
         self.releases_list = self.releases.find_all("li")
         return self.releases_list
 
     def release_parse(self, releases):
         self.urls = []
         self.titles = []
-        print(releases)
         for self.n, self.release, in enumerate(releases):
             self.entry = self.release.find("a", href=True)
-            print(self.entry)
             self.titles.append(self.entry.text)
             self.urls.append(self.entry["href"])
-        print(self.urls)
-        print(self.titles)
         return self.urls, self.titles
 
     def stream_link(self, html):

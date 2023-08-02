@@ -43,6 +43,12 @@ config.read("config.ini")
 url = config.get("Settings", "base_url")
 user_agent = config.get("Settings", "user_agent")
 
+headers = {
+        "User-Agent": user_agent,
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": url
+        }
+
 if args.search and not args.cg and not args.jav:
     url = url + "search/" + args.search.replace(" ", "+")
 elif args.cg and not args.search and not args.jav:
@@ -56,7 +62,7 @@ else:
     sys.exit(1)
 
 
-html = request.Main(user_agent, url).get_html(url)
+html = request.Main().get_html(url, headers)
 parsers.Main().kominfo(html)
 releases_list = parsers.Main().get_release(html)
 urls, titles = parsers.Main().release_parse(releases_list)
@@ -67,12 +73,12 @@ entry_url = urls[entry_num]
 print("Release: " + str(titles[entry_num]))
 print("Link: " + str(entry_url))
 
-release_html = request.Main(user_agent, url).get_html(entry_url)
+release_html = request.Main().get_html(entry_url, headers)
 stream_service_1, stream_service_2 = parsers.Main().stream_link(release_html)
 print(stream_service_1)
 print(stream_service_2)
 
-stream2_html = request.Main(user_agent, url).get_html(stream_service_2)
+stream2_html = request.Main().get_html(stream_service_2, headers)
 stream_mp4 = re.findall(r"(?!\'hls\': \')https:\/\/delivery-node.*master\.mp4.*(?=\',)", str(stream2_html))
 stream_m3u8 = re.findall(r"(?!\'hls\': \')https:\/\/delivery-node.*master\.m3u8.*(?=\',)", str(stream2_html))
 
@@ -88,12 +94,12 @@ else:
 if args.download:
     print(stream_url)
     ext_name = re.findall("(?<=master).*(?=\?t)", stream_url)
-    name = release_title + ext_name[0]
+    name = titles[entry_num] + ext_name[0]
     print(name)
     if args.directory:
         directory = args.directory
     else:
         directory = ""
-    request.Main(user_agent, stream_url).download(directory, name, stream_url)
+    request.Main().download(directory, name, stream_url, headers)
 else:
     subprocess.run("mpv " + "\"" + stream_url + "\"", shell=True)
