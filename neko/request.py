@@ -1,5 +1,5 @@
 import requests
-import youtube_dl
+import yt_dlp
 import sys
 import os
 from bs4 import BeautifulSoup
@@ -8,7 +8,6 @@ class Main:
     def get_html(self, url, headers):
         for i in range(10):
             try:
-                print("request")
                 self.result = requests.get(url, headers=headers)
                 self.result = BeautifulSoup(self.result.text, "html.parser")
                 if self.result == None:
@@ -22,10 +21,13 @@ class Main:
 
     def download(self, directory, name, url, headers):
         self.options = {
-                "outtmpl": os.path.join(directory, name),
+                "outtmpl": os.path.join(directory, name + ".mp4"),
                 "nocheckcertificate": True,
-                "disabledebug": True
+                "quiet": True,
+                "no_warnings": True,
+                "format": "mp4",
+                "embed-metadata": True
                 }
-        with youtube_dl.YoutubeDL(self.options) as ytdl:
+        with yt_dlp.YoutubeDL(self.options) as ytdl:
             ytdl.download([url])
 
